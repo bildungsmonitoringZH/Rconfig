@@ -12,3 +12,12 @@ File `.Rprofile`
 
 File `.Rprofile_defaultpackages` is accessed in `.Rprofile` via GitHub. (Optional) It can be placed in R_USER directory as fall back option.
 
+## R Packages
+
+File `installed_packages.csv`
+
+* List of packages to be installed
+
+Script `packageInstaller.R`
+
+* To install all missing packages `source()` the script and run `installPkgs()`
