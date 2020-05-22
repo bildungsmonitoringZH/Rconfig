@@ -42,6 +42,7 @@ RODBC
 roxygen2
 RQDA
 sf
+stargazer
 stringi
 stringr
 testthat
