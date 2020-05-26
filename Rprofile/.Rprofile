@@ -1,24 +1,45 @@
 # user R configurations template
 #
-# manual site configuration: place Rprofile.site in R_HOME directory
-# manual user configuration: place .Rprofile in R_USER directory
-# manual project configuration: place .Rprofile in working/project directory
-#
 # Author: Flavian Imlig <flavian.imlig@bi.zh.ch>
-# Date: 30.03.2019
+# Date: 26.05.2019
 ###############################################################################
 
-# set UTF-8 to be default encoding
-# options(encoding = 'UTF-8')
+# Usage options
+#
+# manual site configuration: place Rprofile.site in R_HOME directory
+# (default) manual user configuration: place .Rprofile in R_USER directory
+# manual project configuration: place .Rprofile in working/project directory
+###############################################################################
 
-# set a CRAN mirror
-local({r <- getOption("repos")
-r["CRAN"] <- "https://stat.ethz.ch/CRAN"
-options(repos=r)})
+# Installation
+#
+# see https://github.com/bildungsmonitoringZH/Rconfig
+###############################################################################
 
-# set KTZH Proxy
-Sys.setenv(http_proxy="proxy.kt.ktzh.ch:8080")
-Sys.setenv(https_proxy="proxy.kt.ktzh.ch:8080")
+# function to set R author
+.set_author <- function()
+{
+    author <- utils::person('Flavian', 'Imlig', email = 'flavian.imlig@bi.zh.ch')
+    return(author)
+}
+
+# function to set R environment variables
+.set_env <- function(load = TRUE)
+{
+    if( load ) {
+        # set CRAN mirror
+        local({r <- getOption("repos")
+        r["CRAN"] <- "https://stat.ethz.ch/CRAN"
+        options(repos=r)})
+        
+        # set to never compile CRAN packages from source
+        options(install.packages.compile.from.source='newer')
+        
+        # set proxy
+        Sys.setenv(http_proxy="http://proxy.kt.ktzh.ch:8080")
+        Sys.unsetenv('https_proxy')
+    }
+}
 
 # function to set additional default packages
 .set_defpacks <- function(load = TRUE)
@@ -30,24 +51,33 @@ Sys.setenv(https_proxy="proxy.kt.ktzh.ch:8080")
     }
     
     # table locations
-    file <- '.Rprofile_defaultpackages'
-    paths <- list(url('http://raw.githubusercontent.com/bildungsmonitoringZH/Rconfig/master/Rprofile/.Rprofile_defaultpackages'),
-                  file.path(Sys.getenv('R_USER'), file))
+    file_1 <- url('http://raw.githubusercontent.com/bildungsmonitoringZH/Rconfig/master/Rprofile/.Rprofile_defaultpackages')
+    file_2 <- file.path(Sys.getenv('R_USER'), '.Rprofile_defaultpackages')
     
     # get package table
-    tbl <- suppressWarnings(try(utils::read.csv(paths[[1]], as.is = TRUE), silent = TRUE))
-    if( is(tbl, 'try-error') ) { close(paths[[1]]) }
-    if( is(tbl, 'try-error') ) { tbl <- suppressWarnings(try(read.csv(paths[[2]], as.is = TRUE), silent = TRUE)) }
+    tbl_1 <- suppressWarnings(try(utils::read.csv(file_1, as.is = TRUE), silent = TRUE))
+    tbl_2 <- suppressWarnings(try(utils::read.csv(file_2, as.is = TRUE), silent = TRUE))
+    try(close(file_1), silent = TRUE)
     
-    
-    # check package table, set R option defaultPackages
-    if( is(tbl, 'data.frame') ) {
-        if( identical(names(tbl), 'defaultPackages') & nrow(tbl) > 0 ) {
-            options(defaultPackages = unique(c(getOption('defaultPackages'), tbl$defaultPackages)))
-            return(invisible(NULL))
-        }
+    # check package table
+    f_check <- function(tbl)
+    {
+        if( is(tbl, 'try-error') ) return(FALSE)
+        if( !is(tbl, 'data.frame') ) return(FALSE)
+        if( !identical(names(tbl), 'defaultPackages') ) return(FALSE)
+        if( nrow(tbl) < 1 ) return(FALSE)
+        return(TRUE)
     }
     
+    if( f_check(tbl_1) )
+    {
+        options(defaultPackages = unique(c(getOption('defaultPackages'), tbl_1$defaultPackages)))
+        return(invisible(NULL))
+    } else if( f_check(tbl_2) ) {
+        options(defaultPackages = unique(c(getOption('defaultPackages'), tbl_2$defaultPackages)))
+        return(invisible(NULL))
+    }
+
     # return on failure
     message('No additional defaultPackages set in .Rprofile! (failure)')
     return(invisible(NULL))
@@ -57,7 +87,10 @@ Sys.setenv(https_proxy="proxy.kt.ktzh.ch:8080")
 .First <- function()
 {
     # set author
-    author <- utils::person('Flavian', 'Imlig', email = 'flavian.imlig@bi.zh.ch')
+    author <- .set_author()
+    
+    # set environment variables
+    .set_env(load = TRUE)
     
     # set default packages
     .set_defpacks(load = TRUE)
