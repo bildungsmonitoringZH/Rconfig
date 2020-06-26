@@ -5,6 +5,7 @@ bookdown
 broom
 caret
 coin
+data.table
 DBI
 devtools
 downloader
