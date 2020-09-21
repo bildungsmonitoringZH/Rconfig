@@ -8,6 +8,7 @@ stringr
 stringi
 forcats
 purrr
+magrittr
 lubridate
 ggplot2
 productplots
