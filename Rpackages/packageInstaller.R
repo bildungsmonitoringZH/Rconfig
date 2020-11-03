@@ -1,7 +1,7 @@
 # installation of R packages in a biplaR setup
 # 
 # Author: Flavian Imlig <flavian.imlig@bi.zh.ch>
-# Date: 19.05.2020
+# Date: 3.11.2020
 ###############################################################################
 
 # functions
@@ -66,5 +66,13 @@ detachPkg <- function(pkg, character.only = FALSE)
     while(search_item %in% search())
     {
         detach(search_item, unload = TRUE, character.only = TRUE)
+    }
+}
+
+# load arial fonts
+loadFonts <- function(...)
+{
+    if('extrafont' %in% installed.packages()[,1]) {
+        extrafont::font_import(pattern = regex('arial', ignore_case = TRUE), prompt=FALSE)    
     }
 }
