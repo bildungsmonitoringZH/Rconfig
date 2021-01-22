@@ -1,0 +1,17 @@
+# code snippets for RStudio
+#
+# paste into Tools -> Global Options... -> Code -> Editing -> Edit snippets...
+# 
+# Author: Flavian Imlig <flavian.imlig@bi.zh.ch>
+# Date: 22.01.2021
+###############################################################################
+
+# R
+
+snippet header
+	# title
+	# 
+	# Author: Flavian Imlig <flavian.imlig@bi.zh.ch>
+	# Date: `r format(Sys.Date(), '%d.%m.%Y')`
+	###############################################################################
+
